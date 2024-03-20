@@ -19,45 +19,33 @@ Accept: application/json
 ###
 
 // Create a new product with file upload
-POST {{StoreAPI_HostAddress}}/Product
-Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+POST {{StoreAPI_HostAddress}}/Product 
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW 
 
---WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="category_id"
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category_id" 
+1 
 
-1
---WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="product_name"
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="product_name" 
+"Mobile Product New 2024"
 
-Mobile Product NewGen2024
---WebKitFormBoundary7MA4YWxkTrZu0gW
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="unit_price" 
+10
 
-Content-Disposition: form-data; name="unit_price"
-
-48000
---WebKitFormBoundary7MA4YWxkTrZu0gW
-
-Content-Disposition: form-data; name="unit_in_stock"
-
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="unit_in_stock" 
 100
---WebKitFormBoundary7MA4YWxkTrZu0gW
 
-Content-Disposition: form-data; name="created_date"
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; 
 
-2021-07-01T00:00:00
---WebKitFormBoundary7MA4YWxkTrZu0gW
+filename="iphone.png" 
+Content-Type: image/png 
 
-Content-Disposition: form-data; name="modified_date"
-
-2021-07-01T00:00:00
---WebKitFormBoundary7MA4YWxkTrZu0gW
-
-Content-Disposition: form-data; name="product_picture"; filename="iphone.jpg"
-Content-Type: image/jpeg
-
-< ./sample_images/iphone.jpg
---WebKitFormBoundary7MA4YWxkTrZu0gW--
-
+< ./sample_images/iphone.png 
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ###
 

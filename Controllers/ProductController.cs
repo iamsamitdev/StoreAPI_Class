@@ -10,11 +10,18 @@ public class ProductController: ControllerBase
 {
     // สร้าง Object ของ ApplicationDbContext
     private readonly ApplicationDbContext _context;
+    
+    // IWebHostEnvironment คืออะไร
+    // IWebHostEnvironment เป็นอินเทอร์เฟซใน ASP.NET Core ที่ใช้สำหรับดึงข้อมูลเกี่ยวกับสภาพแวดล้อมการโฮสต์เว็บแอปพลิเคชัน
+    // ContentRootPath: เส้นทางไปยังโฟลเดอร์รากของเว็บแอปพลิเคชัน
+    // WebRootPath: เส้นทางไปยังโฟลเดอร์ wwwroot ของเว็บแอปพลิเคชัน
+    private readonly IWebHostEnvironment _env;
 
     // สร้าง Constructor รับค่า ApplicationDbContext
-    public ProductController(ApplicationDbContext context)
+    public ProductController(ApplicationDbContext context, IWebHostEnvironment env)
     {
         _context = context;
+        _env = env;
     }
 
     // ทดสอบเขียนฟังก์ชันการเชื่อมต่อ database
@@ -98,46 +105,41 @@ public class ProductController: ControllerBase
         return Ok(product);
     }
 
-    // ฟังก์ชันสำหรับการเพิ่มข้อมูลสินค้า และอัพโหลดรูปภาพ
-    // POST /api/Product
+    // ฟังก์ชันสำหรับการเพิ่มข้อมูลสินค้า
+    // POST: /api/Product
     [HttpPost]
-    public async Task<IActionResult> CreateProduct([FromForm] product product, IFormFile file)
+    public async Task<ActionResult<product>> CreateProduct([FromForm] product product, IFormFile image)
     {
-        // ตรวจสอบว่ามีการอัพโหลดรูปภาพหรือไม่
-        if (file != null)
-        {
-            // สร้างชื่อไฟล์ใหม่
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        // เพิ่มข้อมูลลงในตาราง Products
+        _context.products.Add(product);
 
-            // กำหนด Path ให้กับ uploads folder
-            string uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        // ตรวจสอบว่ามีการอัพโหลดไฟล์รูปภาพหรือไม่
+        if(image != null){
+            // กำหนดชื่อไฟล์รูปภาพใหม่
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
 
-            // กำหนด Path ให้กับไฟล์
-            var filePath = Path.Combine(uploads, fileName);
+            // บันทึกไฟล์รูปภาพ
+            string uploadFolder = Path.Combine(_env.ContentRootPath, "uploads");
 
-            // สร้าง uploads folder ถ้าไม่มี
-            if (!Directory.Exists(uploads))
+            // ตรวจสอบว่าโฟลเดอร์ uploads มีหรือไม่
+            if (!Directory.Exists(uploadFolder))
             {
-                Directory.CreateDirectory(uploads);
+                Directory.CreateDirectory(uploadFolder);
             }
 
-            // // บันทึกไฟล์ลงใน Path
-            await using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
             {
-                await file.CopyToAsync(fileStream);
+                await image.CopyToAsync(fileStream);
             }
 
-            // กำหนดชื่อไฟล์ให้กับ product_picture
+            // บันทึกชื่อไฟล์รูปภาพลงในฐานข้อมูล
             product.product_picture = fileName;
         }
 
-        // เพิ่มข้อมูลลงในตาราง Products
-        _context.products.Add(product);
         _context.SaveChanges();
 
         // ส่งข้อมูลกลับไปให้ผู้ใช้
         return Ok(product);
-
     }
     
 

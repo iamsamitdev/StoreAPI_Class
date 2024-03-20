@@ -1,4 +1,7 @@
-﻿namespace StoreAPI.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace StoreAPI.Models;
 
 public partial class product
 {
