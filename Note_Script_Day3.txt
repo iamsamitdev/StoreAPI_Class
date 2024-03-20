@@ -1,0 +1,642 @@
+================================
+🛴 Workshop .NET 8 with NextJS14  🛴
+================================
+✈ DAY 1
+1: การเตรียมเครื่องมือบน Mac และ Windows
+2: แนะนำ .NET Core 8
+3: สร้าง .NET 8 Rest API
+-------------------------------------------------------
+🛠1. การเตรียมเครื่องมือและความพร้อม
+💻 .NET SDK 8.x
+---
+dotnet --version
+
+💻 Node JS 18.x and up
+---
+node -v
+npm -v
+
+💻 PostgreSQL 15 and up
+---
+psql --version
+
+💻 Docker Desktop
+---
+docker --version
+
+💻 Git
+---
+git version
+
+💻 VSCode
+---
+code -v
+
+2: แนะนำ .NET Core 8
+---
+ตั้งแต่ .NET 6 เป็นต้นมา สามารถสร้าง API ได้ 2 approaches ด้วยกันคือ 
+
+1. controller-based APIs
+2. minimal APIs
+
+Minimal API: เหมาะสำหรับ API ขนาดเล็ก ต้องการพัฒนา quickly ต้องการโค้ดที่กระชับ
+
+Controller-based API: เหมาะสำหรับ API ขนาดใหญ่ ต้องการความยืดหยุ่นสูง ต้องการการตั้งค่าเพิ่มเติม
+
+Minimal API:
+---
+จุดเด่น:
+
+โค้ดน้อย กระชับ อ่านง่าย
+พัฒนาได้รวดเร็ว
+เหมาะสำหรับ API ขนาดเล็ก
+สนับสนุนการใช้ lambda expression
+รองรับ async/await โดยตรง
+
+จุดด้อย:
+
+ตัวเลือกการตั้งค่ามีจำกัด
+ไม่เหมาะกับ API ขนาดใหญ่
+การจัดการ routing ซับซ้อน
+
+Controller-based API:
+---
+จุดเด่น:
+
+มีโครงสร้างชัดเจน
+ตัวเลือกการตั้งค่าหลากหลาย
+เหมาะกับ API ขนาดใหญ่
+รองรับการทดสอบง่าย
+รองรับ middleware
+จุดด้อย:
+
+โค้ดยาว ยุ่งยาก
+พัฒนาได้ช้ากว่า Minimal API
+
+3: สร้าง .NET 8 Rest API
+
+🚀เริ่มต้นสร้างโปรเจ็กต์ .NET Core Web API ใหม่ใน .NET 8
+---
+Step 1: สร้างโฟลเดอร์ใหม่ในเครื่องสำหรับเก็บโปรเจ็กต์ในคอร์สอบรมนี้
+---
+mkdir NetCoreWithNextJS
+
+Step 2: คำสั่งสร้างโปรเจ็กต์ใหม่ในโฟลเดอร์ที่สร้าง
+---
+สร้างโปรเจ็กต์ Web APIs แบบ Minimal APIs
+---
+dotnet new webapi -o MinimalAPI
+
+สร้างโปรเจ็กต์ Web APIs แบบ Controller-based APIs
+---
+dotnet new webapi --use-controllers -o ControllerAPI
+
+Step 3: เปิดเข้าใน VSCode
+---
+code MinimalAPI
+or
+code ControllerAPI
+
+Step 4: รันโปรเจ็กต์
+---
+dotnet watch run
+
+💻 เรียนรู้การสร้าง REST API ด้วย .NET Web API แบบ Controller-base APIs
+---
+Step 1: ในโปรเจ็กต์ ControllerAPI ลบไฟล์ Controller/WeatherForecastController.cs
+และไฟล์ WeatherForecast.cs
+
+Step 2: สร้าง model ใน Models/User
+---
+namespace WebApi.Models;
+public class User
+{
+    public int Id { get; set; }
+    public required string Username { get; set; }
+    public required string Email { get; set; }
+    public required string Fullname { get; set; }
+}
+
+
+Step 3: สร้าง UserController ใน Controllers
+---
+using Microsoft.AspNetCore.Mvc;
+using WebApi.Models;
+
+namespace WebApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")] // api/User
+public class UserController : ControllerBase
+{
+    // mock data for users
+    private static readonly List<User> _users = new List<User>
+    {
+        new User { 
+            Id = 1, 
+            Username = "john", 
+            Email = "john@email.com", 
+            Fullname = "John Doe"
+        },
+        new User { 
+            Id = 2, 
+            Username = "samit", 
+            Email = "samit@email.com", 
+            Fullname = "Samit Koyom"
+        },
+    };
+
+    // GET: api/User
+    [HttpGet]
+    public ActionResult<IEnumerable<User>> GetUsers()
+    {
+        // IEnumerable คืออะไร
+        // IEnumerable เป็น interface ใน .NET Framework ที่ใช้แทน collection ของ object
+        // interface นี้กำหนด method เพียงตัวเดียวคือ GetEnumerator()
+        // GetEnumerator() : method นี้ return enumerator
+        // enumerator : object ที่ใช้วนซ้ำผ่าน collection
+        // ในที่นี้เราใช้ IEnumerable ในการ return ข้อมูลของ users
+
+        // วนซ้ำผ่าน collection โดยใช้ foreach
+        // foreach (var user in _users)
+        // {
+        //     Console.WriteLine($"{user.Id} - {user.Username}");
+        // }
+
+        return Ok(_users);
+    }
+
+    // GET: api/User/{id}
+    [HttpGet("{id}")]
+    public ActionResult<User> GetUser(int id)
+    {
+        var user = _users.Find(u => u.Id == id); // find user by id
+        if (user == null)
+        {
+            return NotFound();
+        }
+        return Ok(user);
+    }
+
+
+    // POST: api/User
+    [HttpPost]
+    public ActionResult<User> CreateUser([FromBody] User user)
+    {
+        _users.Add(user);
+        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+    }
+
+    // PUT: api/User/{id}
+    [HttpPut("{id}")]
+    public IActionResult UpdateUser(int id, [FromBody] User user)
+    {
+        // Validate user id
+        if (id != user.Id)
+        {
+            return BadRequest();
+        }
+
+        // Find existing user
+        var existingUser = _users.Find(u => u.Id == id);
+        if (existingUser == null)
+        {
+            return NotFound();
+        }
+
+        // Update user
+        existingUser.Username = user.Username;
+        existingUser.Email = user.Email;
+        existingUser.Fullname = user.Fullname;
+
+        // Return updated user
+        return Ok(existingUser);
+    }
+
+    // DELETE: api/User/2
+    [HttpDelete("{id}")]
+    public ActionResult DeleteUser(int id)
+    {
+        // Find existing user
+        var user = _users.Find(u => u.Id == id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Remove user from list
+        _users.Remove(user);
+        return NoContent();
+    }
+
+
+}
+
+✈ DAY 2
+4:  Entity Framework Core ใน .NET 8 
+5: .NET 8 Rest API CRUD with EFCore
+-------------------------------------------------------
+🚀 WORKSHOP: StoreAPI with EF8 and PostgreSQL
+
+"การใช้งาน EFCore แบบ Database first"
+
+Step 1: เตรียมฐานข้อมูล PostgresSQL
+---
+สร้างฐานข้อมูลใหม่ ชื่อ "storedb"
+---
+CREATE DATABASE storedb;
+
+Step 2: สร้างตาราง "categories" และ "products"
+---
+Category table query
+---
+CREATE TABLE categories (
+  category_id SERIAL PRIMARY KEY,
+  category_name VARCHAR(128) NOT NULL,
+  category_status INTEGER NOT NULL
+);
+
+Products table query
+---
+CREATE TABLE products (
+  product_id SERIAL PRIMARY KEY,
+  category_id INTEGER REFERENCES categories(category_id) ON DELETE SET NULL,
+  product_name VARCHAR(50),
+  unit_price DECIMAL(18, 0),
+  product_picture VARCHAR(1024),
+  unit_in_stock INTEGER,
+  created_date TIMESTAMP,
+  modified_date TIMESTAMP
+);
+
+Step 3: เพิ่มข้อมูลตัวอย่างในตาราง categories และ products
+---
+categories
+---
+INSERT INTO categories (
+    category_name,
+    category_status
+)
+
+VALUES
+(
+    'Mobile',
+    1
+),
+(
+    'Tablet',
+    1
+),
+(
+    'Smart Watch',
+    1
+),
+(
+    'Labtop',
+    1
+);
+
+products
+---
+INSERT INTO products (
+    category_id,
+    product_name,
+    unit_price,
+    product_picture,
+    unit_in_stock,
+    created_date,
+    modified_date
+)
+
+VALUES
+(
+    1,
+    'iPhone 13 Pro Max',
+    55000,
+    'https://www.mxphone.com/wp-content/uploads/2021/04/41117-79579-210401-iPhone12ProMax-xl-1200x675.jpg',
+    3,
+    '2021-11-22T00:00:00',
+    '2021-11-22T00:00:00'
+),
+(
+    2,
+    'iPad Pro 2021',
+    18500,
+    'https://cdn.siamphone.com/spec/apple/images/ipad_pro_12.9%E2%80%91inch/com_1.jpg',
+    10,
+    '2021-11-20T00:00:00',
+    '2021-11-20T00:00:00'
+),
+(
+    3,
+    'Airpods Pro',
+    12500,
+    'https://support.apple.com/library/content/dam/edam/applecare/images/en_US/airpods/airpods-pro-2gen-front-case.png',
+    5,
+    '2021-11-10T10:30:00',
+    '2021-11-12T10:30:00'
+),
+(
+    4,
+    'Macbook Pro M1',
+    45000,
+    'https://cdn.mos.cms.futurecdn.net/iYCQTPgBSdDmkYESfPkunh.jpg',
+    10,
+    '2021-11-15T10:30:00',
+    '2021-11-15T10:30:00'
+);
+
+
+Step 4: คำสั่งสร้างโปรเจกต์ Web API แบบ Controller-base APIs
+---
+dotnet new webapi --use-controllers -o StoreAPI
+
+Step 5: เปิดเข้า VSCode
+---
+code StoreAPI -r
+
+Step 6: ทดสอบรันโปรเจ็กต์
+---
+dotnet watch run
+
+Step 7: Install NuGet Packages for EF8 and Postgresql
+---
+dotnet add package Microsoft.EntityFrameworkCore --version 8.0.0
+
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 8.0.0
+
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL --version 8.0.0
+
+dotnet add package Microsoft.EntityFrameworkCore.Relational --version 8.0.0
+
+Step 8: ติดตั้งชุดคำสั่ง dotnet-ef cli
+---
+ตรวจเช็คว่ามีการติดตั้ง ไว้หรือยัง
+dotnet ef --version
+
+หากยังไม่พบให้ทำการติดตั้งก่อน
+dotnet tool install --global dotnet-ef
+
+อัพเดทเวอร์ชันล่าสุด
+dotnet tool update --global dotnet-ef
+
+Step 9: การสร้าง Scaffold-DbContext ( Reverse engineer)
+---
+Windows Command Prompt
+---
+dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=storedb;Username=postgres;Password=123456" ^
+Npgsql.EntityFrameworkCore.PostgreSQL ^
+--output-dir "Models" ^
+--context ApplicationDbContext ^
+--use-database-names ^
+--no-onconfiguring ^
+--force
+
+
+MacOS/Linux Terminal
+---
+dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=storedb;Username=postgres;Password=123456" \
+Npgsql.EntityFrameworkCore.PostgreSQL \
+--output-dir "Models" \
+--context ApplicationDbContext \
+--use-database-names \
+--no-onconfiguring \
+--force
+
+Step 10: ย้ายไฟล์ ApplicationDbContext ไปไว้ยัง Data/ApplicationDbContext.cs
+--
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using StoreAPI.Models;
+
+namespace StoreAPI.Data;
+
+public partial class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<category> categories { get; set; }
+
+    public virtual DbSet<product> products { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<category>(entity =>
+        {
+            entity.HasKey(e => e.category_id).HasName("categories_pkey");
+
+            entity.Property(e => e.category_name).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<product>(entity =>
+        {
+            entity.HasKey(e => e.product_id).HasName("products_pkey");
+
+            entity.Property(e => e.created_date).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.modified_date).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.product_name).HasMaxLength(50);
+            entity.Property(e => e.product_picture).HasMaxLength(1024);
+            entity.Property(e => e.unit_price).HasPrecision(18);
+
+            entity.HasOne(d => d.category).WithMany(p => p.products)
+                .HasForeignKey(d => d.category_id)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("products_category_id_fkey");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+
+
+Step 11: กำหนด Connection String สำหรับเชื่อมต่อฐานข้อมูล PostgreSQL ที่ไฟล์ appsettings.json
+---
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=storedb;Username=postgres;Password=123456"
+  },
+  "AllowedHosts": "*"
+}
+
+Step 12: เพิ่ม Config "DefaultConnection" ที่ไฟล์ Program.cs
+---
+using Microsoft.EntityFrameworkCore;
+using StoreAPI.Data;
+.
+.
+// For Entity Framework with Npgsql
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+Step 13: สร้าง ProductController.cs
+---
+using Microsoft.AspNetCore.Mvc;
+using StoreAPI.Data;
+using StoreAPI.Models;
+
+namespace StoreAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProductController : ControllerBase
+{
+    // สร้าง Object ของ ApplicationDbContext
+    private readonly ApplicationDbContext _context;
+
+    // สร้าง Constructor รับค่า ApplicationDbContext
+    public ProductController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    // ทดสอบเขียนฟังก์ชันการเชื่อมต่อ database
+    // GET: /api/Product/testconnectdb
+    [HttpGet("testconnectdb")]
+    public void TestConnection()
+    {
+        // ถ้าเชื่อมต่อได้จะแสดงข้อความ "Connected"
+        if (_context.Database.CanConnect())
+        {
+            Response.WriteAsync("Connected");
+        }
+        // ถ้าเชื่อมต่อไม่ได้จะแสดงข้อความ "Not Connected"
+        else
+        {
+            Response.WriteAsync("Not Connected");
+        }
+    }
+
+    // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าทั้งหมด
+    // GET: /api/Product
+    [HttpGet]
+    public ActionResult<product> GetProducts()
+    {
+        // LINQ สำหรับการดึงข้อมูลจากตาราง Products ทั้งหมด
+        // var products = _context.products.ToList();
+
+        // แบบอ่านที่มีเงื่อนไข
+        // var products = _context.products.Where(p => p.unit_price > 45000).ToList();
+
+        // แบบเชื่อมกับตารางอื่น products เชื่อมกับ categories
+        var products = _context.products
+            .Join(
+                _context.categories,
+                p => p.category_id,
+                c => c.category_id,
+                (p, c) => new
+                {
+                    p.product_id,
+                    p.product_name,
+                    p.unit_price,
+                    p.unit_in_stock,
+                    c.category_name
+                }
+            ).ToList();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้งาน
+        return Ok(products);
+    }
+
+    // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าตาม id
+    // GET: /api/Product/{id}
+    [HttpGet("{id}")]
+    public ActionResult<product> GetProduct(int id)
+    {
+        // LINQ สำหรับการดึงข้อมูลจากตาราง Products ตาม id
+        var product = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้งาน
+        return Ok(product);
+    }
+
+    // ฟังก์ชันสำหรับการเพิ่มข้อมูลสินค้า
+    // POST: /api/Product
+    [HttpPost]
+    public ActionResult<product> CreateProduct(product product)
+    {
+        // เพิ่มข้อมูลลงในตาราง Products
+        _context.products.Add(product);
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(product);
+    }
+
+    // ฟังก์ชันสำหรับการแก้ไขข้อมูลสินค้า
+    // PUT: /api/Product/{id}
+    [HttpPut("{id}")]
+    public ActionResult<product> UpdateProduct(int id, product product)
+    {
+        // ดึงข้อมูลสินค้าตาม id
+        var existingProduct = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (existingProduct == null)
+        {
+            return NotFound();
+        }
+
+        // แก้ไขข้อมูลสินค้า
+        existingProduct.product_name = product.product_name;
+        existingProduct.unit_price = product.unit_price;
+        existingProduct.unit_in_stock = product.unit_in_stock;
+        existingProduct.category_id = product.category_id;
+
+        // บันทึกข้อมูล
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(existingProduct);
+    }
+
+    // ฟังก์ชันสำหรับการลบข้อมูลสินค้า
+    // DELETE: /api/Product/{id}
+    [HttpDelete("{id}")]
+    public ActionResult<product> DeleteProduct(int id)
+    {
+        // ดึงข้อมูลสินค้าตาม id
+        var product = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        // ลบข้อมูล
+        _context.products.Remove(product);
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(product);
+    }
+
+}
+
+✈ DAY 3
+5: .NET 8 Rest API CRUD Upload File
+6: .NET 8 JWT and Swagger
+-------------------------------------------------------
+🚀 ปปป
+
