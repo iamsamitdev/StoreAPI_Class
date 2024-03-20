@@ -1,0 +1,83 @@
+@StoreAPI_HostAddress = http://localhost:5143/api
+
+// Test connection to the StoreAPI
+GET {{StoreAPI_HostAddress}}/Product/testconnect
+Accept: application/json
+
+###
+
+// Get all products
+GET {{StoreAPI_HostAddress}}/Product
+Accept: application/json
+
+###
+
+// Get a product by ID
+GET {{StoreAPI_HostAddress}}/Product/2
+Accept: application/json
+
+###
+
+// Create a new product with file upload
+POST {{StoreAPI_HostAddress}}/Product
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="category_id"
+
+1
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="product_name"
+
+Mobile Product NewGen2024
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+
+Content-Disposition: form-data; name="unit_price"
+
+48000
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+
+Content-Disposition: form-data; name="unit_in_stock"
+
+100
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+
+Content-Disposition: form-data; name="created_date"
+
+2021-07-01T00:00:00
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+
+Content-Disposition: form-data; name="modified_date"
+
+2021-07-01T00:00:00
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+
+Content-Disposition: form-data; name="product_picture"; filename="iphone.jpg"
+Content-Type: image/jpeg
+
+< ./sample_images/iphone.jpg
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+###
+
+// Update a product
+PUT {{StoreAPI_HostAddress}}/Product/5
+Content-Type: application/json
+Accept: application/json
+
+{
+  "category_id": 1,
+  "product_name": "Mobile Product Updated",
+  "unit_price": 20,
+  "product_picture": "https://www.popticles.com/wp-content/uploads/2021/04/iphone-410311_1280-1024x682.jpg",
+  "unit_in_stock": 100,
+  "created_date": "2021-07-01T00:00:00",
+  "modified_date": "2021-07-01T00:00:00"
+}
+
+###
+
+// Delete a product
+DELETE {{StoreAPI_HostAddress}}/Product/5
+Accept: application/json
