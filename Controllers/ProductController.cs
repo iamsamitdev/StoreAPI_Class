@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreAPI.Data;
 using StoreAPI.Models;
 
 namespace StoreAPI.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
+[Authorize] // กำหนดให้ต้อง Login ก่อนเข้าถึง API นี้
+[ApiController] // กำหนดให้ Class นี้เป็น API Controller
+[Route("api/[controller]")] // กำหนด Route ของ API Controller
 public class ProductController: ControllerBase
 {
     // สร้าง Object ของ ApplicationDbContext
@@ -24,6 +26,7 @@ public class ProductController: ControllerBase
         _env = env;
     }
 
+    // [AllowAnonymous]
     // ทดสอบเขียนฟังก์ชันการเชื่อมต่อ database
     [HttpGet("testconnect")]
     public void TestConnection()
@@ -39,32 +42,36 @@ public class ProductController: ControllerBase
         }
     }
 
+    // [Authorize]
     // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าทั้งหมด
     // GET /api/Product
     [HttpGet]
     public ActionResult<product> GetProducts()
     {
         // LINQ สำหรับการดึงข้อมูลจากตาราง Products ทั้งหมด
-        var products = _context.products.ToList();
+        // var products = _context.products.ToList();
 
         // แบบอ่านที่มีเงื่อนไข
         // var products = _context.products.Where(p => p.unit_price > 45000).ToList();
 
         // แบบเชื่อมกับตารางอื่น products เชื่อมกับ categories
-        // var products = _context.products
-        //     .Join(
-        //         _context.categories,
-        //         p => p.category_id,
-        //         c => c.category_id,
-        //         (p, c) => new
-        //         {
-        //             p.product_id,
-        //             p.product_name,
-        //             p.unit_price,
-        //             p.unit_in_stock,
-        //             c.category_name
-        //         }
-        //     ).ToList();
+        var products = _context.products
+            .Join(
+                _context.categories,
+                p => p.category_id,
+                c => c.category_id,
+                (p, c) => new
+                {
+                    p.product_id,
+                    p.product_name,
+                    p.unit_price,
+                    p.unit_in_stock,
+                    p.product_picture,
+                    p.created_date,
+                    p.modified_date,
+                    c.category_name
+                }
+            ).ToList();
 
         // ส่งข้อมูลกลับไปให้ผู้ใช้
         return Ok(products);
@@ -76,24 +83,27 @@ public class ProductController: ControllerBase
     public ActionResult<product> GetProduct(int id)
     {
         // LINQ สำหรับการดึงข้อมูลจากตาราง Products ตาม id
-        var product = _context.products.FirstOrDefault(p => p.product_id == id);
+        // var product = _context.products.FirstOrDefault(p => p.product_id == id);
 
         // แบบเชื่อมกับตารางอื่น products เชื่อมกับ categories
-        // var product = _context.products
-        //     .Join(
-        //         _context.categories,
-        //         p => p.category_id,
-        //         c => c.category_id,
-        //         (p, c) => new
-        //         {
-        //             p.product_id,
-        //             p.product_name,
-        //             p.unit_price,
-        //             p.unit_in_stock,
-        //             c.category_name
-        //         }
-        //     )
-        //     .FirstOrDefault(p => p.product_id == id);
+        var product = _context.products
+            .Join(
+                _context.categories,
+                p => p.category_id,
+                c => c.category_id,
+                (p, c) => new
+                {
+                    p.product_id,
+                    p.product_name,
+                    p.unit_price,
+                    p.unit_in_stock,
+                    p.product_picture,
+                    p.created_date,
+                    p.modified_date,
+                    c.category_name
+                }
+            )
+            .FirstOrDefault(p => p.product_id == id);
 
         // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
         if (product == null)
