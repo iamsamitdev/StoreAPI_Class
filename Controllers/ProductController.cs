@@ -71,7 +71,9 @@ public class ProductController: ControllerBase
                     p.modified_date,
                     c.category_name
                 }
-            ).ToList();
+            )
+            .OrderByDescending(p => p.product_id)
+            .ToList();
 
         // ส่งข้อมูลกลับไปให้ผู้ใช้
         return Ok(products);
@@ -118,7 +120,7 @@ public class ProductController: ControllerBase
     // ฟังก์ชันสำหรับการเพิ่มข้อมูลสินค้า
     // POST: /api/Product
     [HttpPost]
-    public async Task<ActionResult<product>> CreateProduct([FromForm] product product, IFormFile image)
+    public async Task<ActionResult<product>> CreateProduct([FromForm] product product, IFormFile? image)
     {
         // เพิ่มข้อมูลลงในตาราง Products
         _context.products.Add(product);
@@ -129,7 +131,8 @@ public class ProductController: ControllerBase
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
 
             // บันทึกไฟล์รูปภาพ
-            string uploadFolder = Path.Combine(_env.ContentRootPath, "uploads");
+            // string uploadFolder = Path.Combine(_env.ContentRootPath, "uploads");
+            string uploadFolder = Path.Combine(_env.WebRootPath, "uploads");
 
             // ตรวจสอบว่าโฟลเดอร์ uploads มีหรือไม่
             if (!Directory.Exists(uploadFolder))
@@ -144,6 +147,8 @@ public class ProductController: ControllerBase
 
             // บันทึกชื่อไฟล์รูปภาพลงในฐานข้อมูล
             product.product_picture = fileName;
+        } else {
+            product.product_picture = "noimg.jpg";
         }
 
         _context.SaveChanges();
@@ -156,7 +161,7 @@ public class ProductController: ControllerBase
     // ฟังก์ชันสำหรับการแก้ไขข้อมูลสินค้า
     // PUT /api/Product/1
     [HttpPut("{id}")]
-    public ActionResult<product> UpdateProduct(int id, product product)
+    public async Task<ActionResult<product>> UpdateProduct(int id, [FromForm] product product, IFormFile? image)
     {
         // ดึงข้อมูลสินค้าตาม id
         var existingProduct = _context.products.FirstOrDefault(p => p.product_id == id);
@@ -172,6 +177,35 @@ public class ProductController: ControllerBase
         existingProduct.unit_price = product.unit_price;
         existingProduct.unit_in_stock = product.unit_in_stock;
         existingProduct.category_id = product.category_id;
+
+        // ตรวจสอบว่ามีการอัพโหลดไฟล์รูปภาพหรือไม่
+        if(image != null){
+            // กำหนดชื่อไฟล์รูปภาพใหม่
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+
+            // บันทึกไฟล์รูปภาพ
+            // string uploadFolder = Path.Combine(_env.ContentRootPath, "uploads");
+            string uploadFolder = Path.Combine(_env.WebRootPath, "uploads");
+
+            // ตรวจสอบว่าโฟลเดอร์ uploads มีหรือไม่
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            using (var fileStream = new FileStream(Path.Combine(uploadFolder, fileName), FileMode.Create))
+            {
+                await image.CopyToAsync(fileStream);
+            }
+
+            // ลบไฟล์รูปภาพเดิม ถ้ามีการอัพโหลดรูปภาพใหม่ และรูปภาพเดิมไม่ใช่ noimg.jpg
+            if(existingProduct.product_picture != "noimg.jpg"){
+                System.IO.File.Delete(Path.Combine(uploadFolder, existingProduct.product_picture!));
+            }
+
+            // บันทึกชื่อไฟล์รูปภาพลงในฐานข้อมูล
+            existingProduct.product_picture = fileName;
+        }
 
         // บันทึกข้อมูล
         _context.SaveChanges();
@@ -192,6 +226,15 @@ public class ProductController: ControllerBase
         if (product == null)
         {
             return NotFound();
+        }
+
+        // ตรวจสอบว่ามีไฟล์รูปภาพหรือไม่
+        if(product.product_picture != "noimg.jpg"){
+            // string uploadFolder = Path.Combine(_env.ContentRootPath, "uploads");
+            string uploadFolder = Path.Combine(_env.WebRootPath, "uploads");
+
+            // ลบไฟล์รูปภาพ
+            System.IO.File.Delete(Path.Combine(uploadFolder, product.product_picture!));
         }
 
         // ลบข้อมูล

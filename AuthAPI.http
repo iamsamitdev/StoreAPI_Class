@@ -2,7 +2,7 @@
 @AuthAPI_HostAddress = http://localhost:5143/api/Authenticate
 
 // Register API
-POST {{AuthAPI_HostAddress}}/register
+POST {{AuthAPI_HostAddress}}/register-user
 Content-Type: application/json
 
 {
