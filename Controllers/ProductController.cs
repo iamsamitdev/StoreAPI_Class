@@ -69,6 +69,7 @@ public class ProductController: ControllerBase
                     p.product_picture,
                     p.created_date,
                     p.modified_date,
+                    p.category_id,
                     c.category_name
                 }
             )
@@ -177,6 +178,7 @@ public class ProductController: ControllerBase
         existingProduct.unit_price = product.unit_price;
         existingProduct.unit_in_stock = product.unit_in_stock;
         existingProduct.category_id = product.category_id;
+        existingProduct.modified_date = product.modified_date;
 
         // ตรวจสอบว่ามีการอัพโหลดไฟล์รูปภาพหรือไม่
         if(image != null){
