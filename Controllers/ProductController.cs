@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StoreAPI.Data;
 using StoreAPI.Models;
 
@@ -46,8 +47,11 @@ public class ProductController: ControllerBase
     // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าทั้งหมด
     // GET /api/Product
     [HttpGet]
-    public ActionResult<product> GetProducts()
+    public ActionResult<product> GetProducts([FromQuery] int page=1, [FromQuery] int limit=100, [FromQuery] string? searchQuery=null, [FromQuery] int? selectedCategory = null)
     {
+        // int totalRecords = _context.products.Count();
+        int skip = (page - 1) * limit;
+
         // LINQ สำหรับการดึงข้อมูลจากตาราง Products ทั้งหมด
         // var products = _context.products.ToList();
 
@@ -55,7 +59,7 @@ public class ProductController: ControllerBase
         // var products = _context.products.Where(p => p.unit_price > 45000).ToList();
 
         // แบบเชื่อมกับตารางอื่น products เชื่อมกับ categories
-        var products = _context.products
+        var query = _context.products
             .Join(
                 _context.categories,
                 p => p.category_id,
@@ -72,12 +76,31 @@ public class ProductController: ControllerBase
                     p.category_id,
                     c.category_name
                 }
-            )
+            );
+
+        // Apply search query if it is not null or empty
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            // query = query.Where(p => p.product_name.Contains(searchQuery));
+            query = query.Where(p => EF.Functions.ILike(p.product_name!, $"%{searchQuery}%"));
+        }
+
+        // Apply category filter if it is not null
+        if (selectedCategory.HasValue)
+        {
+            query = query.Where(p => p.category_id == selectedCategory.Value);
+        }
+
+        var totalRecords = query.Count(); // Count after filtering
+
+        var products = query
             .OrderByDescending(p => p.product_id)
+            .Skip(skip)
+            .Take(limit)
             .ToList();
 
         // ส่งข้อมูลกลับไปให้ผู้ใช้
-        return Ok(products);
+        return Ok(new { Total = totalRecords, Products = products });
     }
 
     // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าตาม id
