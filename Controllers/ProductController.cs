@@ -91,6 +91,8 @@ public class ProductController: ControllerBase
             query = query.Where(p => p.category_id == selectedCategory.Value);
         }
 
+        // query = query.Where(p => p.unit_in_stock > 100);
+
         var totalRecords = query.Count(); // Count after filtering
 
         var products = query
