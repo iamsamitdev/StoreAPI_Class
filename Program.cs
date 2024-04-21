@@ -88,7 +88,7 @@ builder.Services.AddSwaggerGen(opt =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction()) // Adjust according to your needs
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -98,7 +98,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 // Redirect HTTP to HTTPS
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 // Cors Allow All
 // app.UseCors(options =>
