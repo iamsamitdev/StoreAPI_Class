@@ -1,5 +1,11 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+
+# On Local
+# EXPOSE 8081
+# ENV ASPNETCORE_URLS=http://+:8081
+
+# On Render cloud
 EXPOSE 80
 EXPOSE 443
 

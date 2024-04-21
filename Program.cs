@@ -97,8 +97,12 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction()) // Adjust
 // Use Static Files
 app.UseStaticFiles();
 
+
 // Redirect HTTP to HTTPS
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();  // Only use HTTPS redirection in non-development environments
+}
 
 // Cors Allow All
 // app.UseCors(options =>
