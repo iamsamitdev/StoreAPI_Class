@@ -212,7 +212,13 @@ public class AuthenticateController : ControllerBase
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
+                expiration = token.ValidTo,
+                userData = new
+                {
+                    userName = user.UserName,
+                    email = user.Email,
+                    roles = userRoles
+                }
             });
         }
 
