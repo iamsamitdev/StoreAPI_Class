@@ -28,21 +28,41 @@ public class AuthenticateController : ControllerBase
         _configuration = configuration;
     }
 
-    // Register for user
+    // Register for User
+    // Post api/authenticate/register-user
     [HttpPost]
     [Route("register-user")]
-    public async Task<IActionResult> RegisterUser([FromBody] RegisterModel model)
+    public async Task<ActionResult> RegisterUser([FromBody] RegisterModel model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username!);
+        // เช็คว่า username ซ้ำหรือไม่
+        var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User already exists!" 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User already exists!"
                 }
             );
+        }
 
+        // เช็คว่า email ซ้ำหรือไม่
+        userExists = await _userManager.FindByEmailAsync(model.Email);
+        if (userExists != null)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "Email already exists!"
+                }
+            );
+        }
+
+        // สร้าง User
         IdentityUser user = new()
         {
             Email = model.Email,
@@ -50,17 +70,23 @@ public class AuthenticateController : ControllerBase
             UserName = model.Username
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password!);
+        // สร้าง User ในระบบ
+        var result = await _userManager.CreateAsync(user, model.Password);
 
+        // ถ้าสร้างไม่สำเร็จ
         if (!result.Succeeded)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User creation failed! Please check user details and try again." 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User creation failed! Please check user details and try again."
                 }
             );
+        }
 
+        // กำหนด Roles Admin, Manager, User
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
@@ -71,30 +97,53 @@ public class AuthenticateController : ControllerBase
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
         }
 
-        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+        if (await _roleManager.RoleExistsAsync(UserRoles.User))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
             await _userManager.AddToRoleAsync(user, UserRoles.User);
         }
 
-        return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+        return Ok(new Response
+        {
+            Status = "Success",
+            Message = "User registered successfully"
+        });
     }
 
     // Register for manager
-    [HttpPost]
-    [Route("register-manager")]
-    public async Task<IActionResult> RegisterManager([FromBody] RegisterModel model)
+     [HttpPost]
+    [Route("register-manger")]
+    public async Task<ActionResult> RegisterManager([FromBody] RegisterModel model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username!);
+        // เช็คว่า username ซ้ำหรือไม่
+        var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User already exists!" 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User already exists!"
                 }
             );
+        }
 
+        // เช็คว่า email ซ้ำหรือไม่
+        userExists = await _userManager.FindByEmailAsync(model.Email);
+        if (userExists != null)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "Email already exists!"
+                }
+            );
+        }
+
+        // สร้าง User
         IdentityUser user = new()
         {
             Email = model.Email,
@@ -102,51 +151,80 @@ public class AuthenticateController : ControllerBase
             UserName = model.Username
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password!);
+        // สร้าง User ในระบบ
+        var result = await _userManager.CreateAsync(user, model.Password);
 
+        // ถ้าสร้างไม่สำเร็จ
         if (!result.Succeeded)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User creation failed! Please check user details and try again." 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User creation failed! Please check user details and try again."
                 }
             );
+        }
 
+        // กำหนด Roles Admin, Manager, User
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
         }
 
-        if (!await _roleManager.RoleExistsAsync(UserRoles.Manager))
+        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+        {
+            await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+        }
+
+        if (await _roleManager.RoleExistsAsync(UserRoles.Manager))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
             await _userManager.AddToRoleAsync(user, UserRoles.Manager);
         }
 
-        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+        return Ok(new Response
         {
-            await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-        }
-
-        return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+            Status = "Success",
+            Message = "User registered successfully"
+        });
     }
     
     // Register for admin
     [HttpPost]
     [Route("register-admin")]
-    public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+    public async Task<ActionResult> RegisterAdmin([FromBody] RegisterModel model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username!);
+        // เช็คว่า username ซ้ำหรือไม่
+        var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User already exists!" 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User already exists!"
                 }
             );
+        }
 
+        // เช็คว่า email ซ้ำหรือไม่
+        userExists = await _userManager.FindByEmailAsync(model.Email);
+        if (userExists != null)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "Email already exists!"
+                }
+            );
+        }
+
+        // สร้าง User
         IdentityUser user = new()
         {
             Email = model.Email,
@@ -154,21 +232,26 @@ public class AuthenticateController : ControllerBase
             UserName = model.Username
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password!);
+        // สร้าง User ในระบบ
+        var result = await _userManager.CreateAsync(user, model.Password);
 
+        // ถ้าสร้างไม่สำเร็จ
         if (!result.Succeeded)
+        {
             return StatusCode(
-                StatusCodes.Status500InternalServerError, 
-                new Response { 
-                    Status = "Error", 
-                    Message = "User creation failed! Please check user details and try again." 
+                StatusCodes.Status500InternalServerError,
+                new Response
+                {
+                    Status = "Error",
+                    Message = "User creation failed! Please check user details and try again."
                 }
             );
+        }
 
-        if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
+        // กำหนด Roles Admin, Manager, User
+        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
         {
-            await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+            await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
         }
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.Manager))
@@ -176,12 +259,17 @@ public class AuthenticateController : ControllerBase
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
         }
 
-        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+        if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
-            await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+            await _userManager.AddToRoleAsync(user, UserRoles.Admin);
         }
 
-        return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+        return Ok(new Response
+        {
+            Status = "Success",
+            Message = "User registered successfully"
+        });
     }
 
     // Login
@@ -298,7 +386,7 @@ public class AuthenticateController : ControllerBase
         return Ok();
     }
     
-    // Method for generating JWT token
+    // ฟังก์ชันสร้าง Token
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
@@ -306,11 +394,12 @@ public class AuthenticateController : ControllerBase
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],
-            expires: DateTime.Now.AddDays(1),
+            expires: DateTime.Now.AddHours(24), // 24 hours
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         );
-        return token; 
+        return token;
+
     }
 
     public class RefreshTokenModel

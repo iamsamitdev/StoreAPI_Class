@@ -28,6 +28,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
+
 // Adding Jwt Bearer
 .AddJwtBearer(options =>
 {
@@ -43,11 +44,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS with default policy with file upload
+// CORS with default policy
 builder.Services.AddCors(
-    options => {
+    options =>
+    {
         options.AddDefaultPolicy(
-            policy  => {
+            policy =>
+            {
                 policy.AllowAnyOrigin();
                 policy.AllowAnyMethod();
                 policy.AllowAnyHeader();
@@ -56,10 +59,24 @@ builder.Services.AddCors(
     }
 );
 
+// Cors Allow Specific
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowSpecificOrigin",
+//         builder =>
+//         {
+//             builder.WithOrigins("http://localhost:3000", "http://localhost:4200");
+//             builder.WithHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Request-With");
+//             builder.WithMethods("GET", "POST", "PUT", "DELETE");
+//         }
+//     );
+// });
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(opt => 
+builder.Services.AddSwaggerGen(opt =>
     {
         opt.SwaggerDoc(
             "v1",
@@ -116,22 +133,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();  // Only use HTTPS redirection in non-development environments
 }
-
-// Cors Allow All
-// app.UseCors(options =>
-// {
-//     options.AllowAnyOrigin();
-//     options.AllowAnyHeader();
-//     options.AllowAnyMethod();
-// });
-
-// Cors Allow Specific
-// app.UseCors(options => 
-// {
-//     options.WithOrigins("http://localhost:3000");
-//     options.WithHeaders("Authorization");
-//     options.WithMethods("GET", "POST", "PUT", "DELETE");
-// });
 
 app.UseCors();
 
