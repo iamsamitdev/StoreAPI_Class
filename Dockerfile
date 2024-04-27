@@ -9,8 +9,9 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:80
 
+RUN adduser --disabled-password --gecos '' app
 USER app
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
