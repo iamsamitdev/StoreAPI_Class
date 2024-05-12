@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,7 @@ namespace StoreAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableCors("MultipleOrigins")]
 public class AuthenticateController : ControllerBase
 {
 

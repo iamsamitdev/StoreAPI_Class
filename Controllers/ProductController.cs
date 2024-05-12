@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Data;
@@ -9,6 +10,7 @@ namespace StoreAPI.Controllers;
 [Authorize] // กำหนดให้ต้อง Login ก่อนเข้าถึง API นี้
 [ApiController] // กำหนดให้ Class นี้เป็น API Controller
 [Route("api/[controller]")] // กำหนด Route ของ API Controller
+[EnableCors("MultipleOrigins")] // กำหนดให้สามารถเข้าถึง API นี้ได้จากหลายๆ Domain
 public class ProductController: ControllerBase
 {
     // สร้าง Object ของ ApplicationDbContext

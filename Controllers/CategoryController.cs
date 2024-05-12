@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using StoreAPI.Data;
 using StoreAPI.Models;
@@ -8,6 +9,7 @@ namespace StoreAPI.Controllers;
 [Authorize] // กำหนดให้ต้อง Login ก่อนเข้าถึง API นี้
 [ApiController] // กำหนดให้ Class นี้เป็น API Controller
 [Route("api/[controller]")] // กำหนด Route ของ API Controller
+[EnableCors("MultipleOrigins")]
 public class CategoryController: ControllerBase
 {
 
