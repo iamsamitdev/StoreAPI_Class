@@ -45,19 +45,21 @@ builder.Services.AddAuthentication(options =>
 });
 
 // CORS with default policy
-builder.Services.AddCors(
-    options =>
-    {
-        options.AddDefaultPolicy(
-            policy =>
-            {
-                policy.AllowAnyOrigin();
-                policy.AllowAnyMethod();
-                policy.AllowAnyHeader();
-            }
-        );
-    }
-);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MultipleOrigins",
+        policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:4200", // Angular framework
+                "http://localhost:8080", // Angular framework
+                "http://localhost:3000", // React/NextJS/ Framework
+                "https://angualr-aoc.netlify.app"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 
 // Cors Allow Specific
 // builder.Services.AddCors(options =>
@@ -134,7 +136,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();  // Only use HTTPS redirection in non-development environments
 }
 
-app.UseCors();
+app.UseCors("MultipleOrigins");
 
 // Add Authentication
 app.UseAuthentication();
