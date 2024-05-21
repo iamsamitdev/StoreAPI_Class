@@ -12,6 +12,8 @@ namespace StoreAPI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [EnableCors("MultipleOrigins")]
+// Hide the controller from Swagger
+// [ApiExplorerSettings(IgnoreApi = true)]
 public class AuthenticateController : ControllerBase
 {
 

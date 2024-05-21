@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StoreAPI.Data;
@@ -128,7 +129,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction()) // Adjust
 
 // Use Static Files
 app.UseStaticFiles();
-
+// app.UseStaticFiles(new StaticFileOptions()
+// {
+//     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Resources")),
+//     RequestPath = new PathString("/Resources")
+// });
 
 // Redirect HTTP to HTTPS
 if (!app.Environment.IsDevelopment())

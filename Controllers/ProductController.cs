@@ -29,7 +29,7 @@ public class ProductController: ControllerBase
         _env = env;
     }
 
-    // [AllowAnonymous]
+    [AllowAnonymous]
     // ทดสอบเขียนฟังก์ชันการเชื่อมต่อ database
     [HttpGet("testconnect")]
     public void TestConnection()
