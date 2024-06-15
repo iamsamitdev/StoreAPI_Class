@@ -45,21 +45,36 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS with default policy
-builder.Services.AddCors(options =>
+// Allow CORS
+builder.Services.AddCors(options => 
 {
-    options.AddPolicy("MultipleOrigins",
-        policy =>
-        {
-            policy.WithOrigins(
-                "http://localhost:4200", // Angular framework
-                "http://localhost:8080", // Angular framework
-                "http://localhost:3000", // React/NextJS/ Framework
-                "https://angualr-aoc.netlify.app"
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-        });
+ options.AddPolicy("MultipleOrigins",
+    policy =>
+    {
+        policy.WithOrigins(
+            // "*", // Allow any origin
+            "https://itgenius.co.th", // Allow specific origin
+            "https://*.itgenius.co.th/", // Allow subdomain
+            "https://*.azurewebsites.net/", // Azure Apps
+            "https://*.netlify.app/", // Netlify Apps
+            "https://*.vercel.app/", // Vercel Apps
+            "https://*.herokuapp.com/", // Heroku Apps
+            "https://*.firebaseapp.com/", // Firebase Apps
+            "https://*.github.io/", // Github Pages
+            "https://*.gitlab.io/", // Gitlab Pages
+            "https://*.onrender.com/", // Render Apps
+            "https://*.surge.sh/", // Surge Apps
+            "http://localhost:8080", // Vue , Svelte Apps
+            "http://localhost:4200", // Angular Apps
+            "http://localhost:3000", // React Apps
+            "http://localhost:5173", // Vite Apps
+            "http://localhost:5000", // Blazor Apps
+            "http://localhost:5001" // Blazor Apps
+        )
+        .SetIsOriginAllowedToAllowWildcardSubdomains()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
 });
 
 // Cors Allow Specific
