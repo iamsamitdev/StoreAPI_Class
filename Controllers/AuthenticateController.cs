@@ -90,20 +90,24 @@ public class AuthenticateController : ControllerBase
             );
         }
 
-        // กำหนด Roles Admin, Manager, User
+        // ถ้าไม่มี Role Admin ให้สร้าง Role Admin ใหม่
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-        }
+        } 
 
+        // ถ้าไม่มี Role Manager ให้สร้าง Role Manager ใหม่
         if (!await _roleManager.RoleExistsAsync(UserRoles.Manager))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
         }
 
-        if (await _roleManager.RoleExistsAsync(UserRoles.User))
+        // ถ้าไม่มี Role User ให้สร้าง Role User ใหม่ และเพิ่ม User ลงใน Role User
+        if (!await _roleManager.RoleExistsAsync(UserRoles.User))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            await _userManager.AddToRoleAsync(user, UserRoles.User);
+        } else {
             await _userManager.AddToRoleAsync(user, UserRoles.User);
         }
 
@@ -171,20 +175,23 @@ public class AuthenticateController : ControllerBase
             );
         }
 
-        // กำหนด Roles Admin, Manager, User
+        // ถ้าไม่มี Role Admin ให้สร้าง Role Admin ใหม่
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-        }
+        } 
 
+        // ถ้าไม่มี Role User ให้สร้าง Role User ใหม่ และเพิ่ม User ลงใน Role User
         if (!await _roleManager.RoleExistsAsync(UserRoles.User))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-        }
+        } 
 
-        if (await _roleManager.RoleExistsAsync(UserRoles.Manager))
+        // ถ้าไม่มี Role Manager ให้สร้าง Role Manager ใหม่
+        if (!await _roleManager.RoleExistsAsync(UserRoles.Manager))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
+        }else {
             await _userManager.AddToRoleAsync(user, UserRoles.Manager);
         }
 
@@ -252,20 +259,23 @@ public class AuthenticateController : ControllerBase
             );
         }
 
-        // กำหนด Roles Admin, Manager, User
+        // ถ้าไม่มี Role User ให้สร้าง Role User ใหม่ และเพิ่ม User ลงใน Role User
         if (!await _roleManager.RoleExistsAsync(UserRoles.User))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-        }
+        } 
 
+        // ถ้าไม่มี Role Manager ให้สร้าง Role Manager ใหม่
         if (!await _roleManager.RoleExistsAsync(UserRoles.Manager))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Manager));
         }
 
-        if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
+        // ถ้าไม่มี Role Admin ให้สร้าง Role Admin ใหม่
+        if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+        } else {
             await _userManager.AddToRoleAsync(user, UserRoles.Admin);
         }
 
