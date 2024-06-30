@@ -25,10 +25,10 @@ public class CategoryController: ControllerBase
     // ฟังก์ชันสำหรับการดึงข้อมูล Category ทั้งหมด
     // GET /api/Category
     [HttpGet]
-    public ActionResult<category> GetCategories()
+    public ActionResult<Category> GetCategories()
     {
         // LINQ สำหรับการดึงข้อมูลจากตาราง Categories ทั้งหมด
-        var categories = _context.categories.ToList();
+        var categories = _context.Categories.ToList();
 
         // ส่งข้อมูลกลับเป็น JSON
         return Ok(categories);
@@ -37,10 +37,10 @@ public class CategoryController: ControllerBase
     // ฟังก์ชันสำหรับการดึงข้อมูล Category ตาม ID
     // GET /api/Category/1
     [HttpGet("{id}")]
-    public ActionResult<category> GetCategory(int id)
+    public ActionResult<Category> GetCategory(int id)
     {
         // LINQ สำหรับการดึงข้อมูลจากตาราง Categories ตาม ID
-        var category = _context.categories.Find(id);
+        var category = _context.Categories.Find(id);
 
         // ถ้าไม่พบข้อมูลจะส่งข้อความกลับว่า "Not Found"
         if (category == null)
@@ -55,10 +55,10 @@ public class CategoryController: ControllerBase
     // ฟังก์ชันสำหรับการเพิ่มข้อมูล Category
     // POST /api/Category
     [HttpPost]
-    public ActionResult<category> AddCategory([FromBody] category category)
+    public ActionResult<Category> AddCategory([FromBody] Category category)
     {
         // เพิ่มข้อมูลลงในตาราง Categories
-        _context.categories.Add(category);
+        _context.Categories.Add(category);
         _context.SaveChanges();
 
         // ส่งข้อมูลกลับเป็น JSON
@@ -68,10 +68,10 @@ public class CategoryController: ControllerBase
     // ฟังก์ชันสำหรับการแก้ไขข้อมูล Category
     // PUT /api/Category/1
     [HttpPut("{id}")]
-    public ActionResult<category> UpdateCategory(int id, [FromBody] category category)
+    public ActionResult<Category> UpdateCategory(int id, [FromBody] Category category)
     {
         // ค้นหาข้อมูลจากตาราง Categories ตาม ID
-        var cat = _context.categories.Find(id);
+        var cat = _context.Categories.Find(id);
 
         // ถ้าไม่พบข้อมูลจะส่งข้อความกลับว่า "Not Found"
         if (cat == null)
@@ -80,7 +80,7 @@ public class CategoryController: ControllerBase
         }
 
         // แก้ไขข้อมูลในตาราง Categories
-        cat.category_name = category.category_name;
+        cat.CategoryName = category.CategoryName;
         _context.SaveChanges();
 
         // ส่งข้อมูลกลับเป็น JSON
@@ -90,10 +90,10 @@ public class CategoryController: ControllerBase
     // ฟังก์ชันสำหรับการลบข้อมูล Category
     // DELETE /api/Category/1
     [HttpDelete("{id}")]
-    public ActionResult<category> DeleteCategory(int id)
+    public ActionResult<Category> DeleteCategory(int id)
     {
         // ค้นหาข้อมูลจากตาราง Categories ตาม ID
-        var cat = _context.categories.Find(id);
+        var cat = _context.Categories.Find(id);
 
         // ถ้าไม่พบข้อมูลจะส่งข้อความกลับว่า "Not Found"
         if (cat == null)
@@ -102,7 +102,7 @@ public class CategoryController: ControllerBase
         }
 
         // ลบข้อมูลในตาราง Categories
-        _context.categories.Remove(cat);
+        _context.Categories.Remove(cat);
         _context.SaveChanges();
 
         // ส่งข้อมูลกลับเป็น JSON

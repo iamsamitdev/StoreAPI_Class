@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace StoreAPI.Models;
 
-public partial class category
+public partial class Category
 {
-    public int category_id { get; set; }
+    [Key]
+    public int CategoryId { get; set; }
 
-    public string category_name { get; set; } = null!;
+    public string CategoryName { get; set; } = null!;
 
-    public int category_status { get; set; }
-
-    public virtual ICollection<product> products { get; set; } = new List<product>();
+    public int CategoryStatus { get; set; }
 }

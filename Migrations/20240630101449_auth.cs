@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace StoreAPI.Migrations
 {
     /// <inheritdoc />
@@ -52,17 +54,36 @@ namespace StoreAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "categories",
+                name: "Categories",
                 columns: table => new
                 {
-                    category_id = table.Column<int>(type: "integer", nullable: false)
+                    CategoryId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    category_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    category_status = table.Column<int>(type: "integer", nullable: false)
+                    CategoryName = table.Column<string>(type: "character varying(64)", unicode: false, maxLength: 64, nullable: false),
+                    CategoryStatus = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("categories_pkey", x => x.category_id);
+                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
+                columns: table => new
+                {
+                    ProductId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProductName = table.Column<string>(type: "character varying(128)", unicode: false, maxLength: 128, nullable: true),
+                    UnitPrice = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
+                    UnitinStock = table.Column<int>(type: "integer", nullable: true),
+                    ProductPicture = table.Column<string>(type: "character varying(256)", unicode: false, maxLength: 256, nullable: true),
+                    CategoryId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "timestamptz", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.ProductId);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,29 +192,26 @@ namespace StoreAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "products",
-                columns: table => new
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryId", "CategoryName", "CategoryStatus" },
+                values: new object[,]
                 {
-                    product_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    category_id = table.Column<int>(type: "integer", nullable: true),
-                    product_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    unit_price = table.Column<decimal>(type: "numeric(18)", precision: 18, nullable: true),
-                    product_picture = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    unit_in_stock = table.Column<int>(type: "integer", nullable: true),
-                    created_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    modified_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
-                },
-                constraints: table =>
+                    { 1, "Mobile", 1 },
+                    { 2, "Tablet", 1 },
+                    { 3, "Smart Watch", 1 },
+                    { 4, "Laptop", 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "ProductId", "CategoryId", "CreatedDate", "ModifiedDate", "ProductName", "ProductPicture", "UnitPrice", "UnitinStock" },
+                values: new object[,]
                 {
-                    table.PrimaryKey("products_pkey", x => x.product_id);
-                    table.ForeignKey(
-                        name: "products_category_id_fkey",
-                        column: x => x.category_id,
-                        principalTable: "categories",
-                        principalColumn: "category_id",
-                        onDelete: ReferentialAction.SetNull);
+                    { 1, 1, new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), "iPhone 13 Pro Max", "https://www.mxphone.com/wp-content/uploads/2021/04/41117-79579-210401-iPhone12ProMax-xl-1200x675.jpg", 55000m, 3 },
+                    { 2, 2, new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), "iPad Pro 2021", "https://cdn.siamphone.com/spec/apple/images/ipad_pro_12.9%E2%80%91inch/com_1.jpg", 18500m, 10 },
+                    { 3, 3, new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), "Airpods Pro", "https://www.avtechguide.com/wp-content/uploads/2020/11/leaked-apple-airpods-pro-generation2-info_01-800x445.jpg", 12000m, 5 },
+                    { 4, 4, new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc), "Macbook Pro M1", "https://cdn.mos.cms.futurecdn.net/iYCQTPgBSdDmkYESfPkunh.jpg", 45000m, 10 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -232,11 +250,6 @@ namespace StoreAPI.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_products_category_id",
-                table: "products",
-                column: "category_id");
         }
 
         /// <inheritdoc />
@@ -258,16 +271,16 @@ namespace StoreAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "products");
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "categories");
         }
     }
 }

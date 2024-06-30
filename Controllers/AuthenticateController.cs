@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using StoreAPI.Data;
 using StoreAPI.Models;
 
 namespace StoreAPI.Controllers;
@@ -17,19 +18,38 @@ namespace StoreAPI.Controllers;
 public class AuthenticateController : ControllerBase
 {
 
+    // สร้าง Object ของ ApplicationDbContext
+    private readonly ApplicationDbContext _context;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
     // Constructor
     public AuthenticateController(
+        ApplicationDbContext context,
         UserManager<IdentityUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IConfiguration configuration)
     {
+        _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+    }
+
+    // ทดสอบเขียนฟังก์ชันการเชื่อมต่อ database
+    [HttpGet("testconnect")]
+    public void TestConnection()
+    {
+        // ถ้าเชื่อมต่อได้จะแสดงข้อความ "Connected"
+        if (_context.Database.CanConnect())
+        {
+            Response.WriteAsync("Connected");
+        }
+        else
+        {
+            Response.WriteAsync("Not Connected");
+        }
     }
 
     // Register for User
@@ -175,7 +195,7 @@ public class AuthenticateController : ControllerBase
             );
         }
 
-        // ถ้าไม่มี Role Admin ให้สร้าง Role Admin ใหม่
+         // ถ้าไม่มี Role Admin ให้สร้าง Role Admin ใหม่
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
         {
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));

@@ -218,66 +218,136 @@ namespace StoreAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("StoreAPI.Models.category", b =>
+            modelBuilder.Entity("StoreAPI.Models.Category", b =>
                 {
-                    b.Property<int>("category_id")
+                    b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("category_id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
-                    b.Property<string>("category_name")
+                    b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<int>("category_status")
+                    b.Property<int>("CategoryStatus")
                         .HasColumnType("integer");
 
-                    b.HasKey("category_id")
-                        .HasName("categories_pkey");
+                    b.HasKey("CategoryId");
 
-                    b.ToTable("categories");
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            CategoryName = "Mobile",
+                            CategoryStatus = 1
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            CategoryName = "Tablet",
+                            CategoryStatus = 1
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            CategoryName = "Smart Watch",
+                            CategoryStatus = 1
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            CategoryName = "Laptop",
+                            CategoryStatus = 1
+                        });
                 });
 
-            modelBuilder.Entity("StoreAPI.Models.product", b =>
+            modelBuilder.Entity("StoreAPI.Models.Product", b =>
                 {
-                    b.Property<int>("product_id")
+                    b.Property<int>("ProductId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("product_id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
 
-                    b.Property<int?>("category_id")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("created_date")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamptz");
 
-                    b.Property<DateTime?>("modified_date")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamptz");
 
-                    b.Property<string>("product_name")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<string>("ProductName")
+                        .HasMaxLength(128)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(128)");
 
-                    b.Property<string>("product_picture")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)");
+                    b.Property<string>("ProductPicture")
+                        .HasMaxLength(256)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(256)");
 
-                    b.Property<int?>("unit_in_stock")
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int?>("UnitinStock")
                         .HasColumnType("integer");
 
-                    b.Property<decimal?>("unit_price")
-                        .HasPrecision(18)
-                        .HasColumnType("numeric(18)");
+                    b.HasKey("ProductId");
 
-                    b.HasKey("product_id")
-                        .HasName("products_pkey");
+                    b.ToTable("Products");
 
-                    b.HasIndex("category_id");
-
-                    b.ToTable("products");
+                    b.HasData(
+                        new
+                        {
+                            ProductId = 1,
+                            CategoryId = 1,
+                            CreatedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductName = "iPhone 13 Pro Max",
+                            ProductPicture = "https://www.mxphone.com/wp-content/uploads/2021/04/41117-79579-210401-iPhone12ProMax-xl-1200x675.jpg",
+                            UnitPrice = 55000m,
+                            UnitinStock = 3
+                        },
+                        new
+                        {
+                            ProductId = 2,
+                            CategoryId = 2,
+                            CreatedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductName = "iPad Pro 2021",
+                            ProductPicture = "https://cdn.siamphone.com/spec/apple/images/ipad_pro_12.9%E2%80%91inch/com_1.jpg",
+                            UnitPrice = 18500m,
+                            UnitinStock = 10
+                        },
+                        new
+                        {
+                            ProductId = 3,
+                            CategoryId = 3,
+                            CreatedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductName = "Airpods Pro",
+                            ProductPicture = "https://www.avtechguide.com/wp-content/uploads/2020/11/leaked-apple-airpods-pro-generation2-info_01-800x445.jpg",
+                            UnitPrice = 12000m,
+                            UnitinStock = 5
+                        },
+                        new
+                        {
+                            ProductId = 4,
+                            CategoryId = 4,
+                            CreatedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedDate = new DateTime(2021, 11, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductName = "Macbook Pro M1",
+                            ProductPicture = "https://cdn.mos.cms.futurecdn.net/iYCQTPgBSdDmkYESfPkunh.jpg",
+                            UnitPrice = 45000m,
+                            UnitinStock = 10
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -329,22 +399,6 @@ namespace StoreAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("StoreAPI.Models.product", b =>
-                {
-                    b.HasOne("StoreAPI.Models.category", "category")
-                        .WithMany("products")
-                        .HasForeignKey("category_id")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("products_category_id_fkey");
-
-                    b.Navigation("category");
-                });
-
-            modelBuilder.Entity("StoreAPI.Models.category", b =>
-                {
-                    b.Navigation("products");
                 });
 #pragma warning restore 612, 618
         }
